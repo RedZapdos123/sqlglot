@@ -496,9 +496,8 @@ class TestSnowflake(Validator):
         self.validate_identity(
             "TO_DECIMAL(expr, fmt, precision, scale)", "TO_NUMBER(expr, fmt, precision, scale)"
         )
-        self.validate_identity("TO_NUMBER(expr)")
-        self.validate_identity("TO_NUMBER(expr, fmt)")
-        self.validate_identity("TO_NUMBER(expr, fmt, precision, scale)")
+        self.validate_identity("TO_NUMBER(expr, 38, 0)", "TO_NUMBER(expr)")
+        self.validate_identity("TO_NUMBER(expr, 38)", "TO_NUMBER(expr)")
 
         ast = self.validate_identity("TO_NUMBER('12.3456')")
         self.assertIsInstance(ast, exp.ToNumber)
@@ -524,7 +523,7 @@ class TestSnowflake(Validator):
         self.assertEqual(ast.args.get("precision").name, "10")
         self.assertEqual(ast.args.get("scale").name, "1")
 
-        ast = self.validate_identity("TO_NUMBER('12.3456', 3)", "TO_NUMBER('12.3456', 3, 0)")
+        ast = self.validate_identity("TO_NUMBER('12.3456', 3)")
         self.assertIsInstance(ast, exp.ToNumber)
         self.assertIsNone(ast.args.get("format"))
         self.assertEqual(ast.args.get("precision").name, "3")
@@ -570,9 +569,8 @@ class TestSnowflake(Validator):
         self.validate_identity("TRY_TO_FILE(object_col)")
         self.validate_identity("TRY_TO_FILE('file.csv')")
         self.validate_identity("TRY_TO_FILE('file.csv', 'relativepath/')")
-        self.validate_identity("TRY_TO_NUMBER('123.45')")
-        self.validate_identity("TRY_TO_NUMBER('123.45', '999.99')")
-        self.validate_identity("TRY_TO_NUMBER('123.45', '999.99', 10, 2)")
+        self.validate_identity("TRY_TO_NUMBER(expr, 38, 0)", "TRY_TO_NUMBER(expr)")
+        self.validate_identity("TRY_TO_NUMBER(expr, 38)", "TRY_TO_NUMBER(expr)")
 
         ast = self.validate_identity("TRY_TO_NUMBER('12.3456')")
         self.assertIsInstance(ast, exp.ToNumber)
@@ -602,9 +600,7 @@ class TestSnowflake(Validator):
         self.assertEqual(ast.args.get("scale").name, "1")
         self.assertTrue(ast.args.get("safe"))
 
-        ast = self.validate_identity(
-            "TRY_TO_NUMBER('12.3456', 3)", "TRY_TO_NUMBER('12.3456', 3, 0)"
-        )
+        ast = self.validate_identity("TRY_TO_NUMBER('12.3456', 3)")
         self.assertIsInstance(ast, exp.ToNumber)
         self.assertIsNone(ast.args.get("format"))
         self.assertEqual(ast.args.get("precision").name, "3")
